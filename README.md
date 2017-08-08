@@ -1,2 +1,2 @@
 # hypropo
-Project Hydropro - metrics from a Hydroculture
+Project Hypropo - metrics from a Hydroculture
