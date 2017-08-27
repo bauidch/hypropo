@@ -17,6 +17,7 @@ BAUD = 9600
 
 s = serial.Serial(DEVICE, BAUD, timeout=3)
 time.sleep(5) # der Arduino resettet nach einer Seriellen Verbindung, daher muss kurz gewartet werden
+print("STart serial session")
 
 def send_and_receive( theinput ):
     s.write( theinput )
@@ -24,6 +25,7 @@ def send_and_receive( theinput ):
         try:
             time.sleep(0.01)
             line = s.readline()
+            print(line)
             return line
         except:
             pass
@@ -38,5 +40,6 @@ while True:
             ec = numbers[1]
             light = float(numbers[4])
             moisture = numbers[5]
+            print(temp)
             # datetime('now','localtime')
     time.sleep(300)
