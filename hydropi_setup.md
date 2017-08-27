@@ -13,3 +13,9 @@ sudo /etc/init.d/ssh start
 
 ### InfluxDB Grafana
 https://www.circuits.dk/install-grafana-influxdb-raspberry/
+
+### Python
+```
+apt-get install python-pip
+pip install pyserial
+```
