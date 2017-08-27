@@ -1,6 +1,7 @@
 import serial
 import time
 import re
+import datetime
 
 for com in range(0,4):
   try:
@@ -36,8 +37,8 @@ while True:
     numbers = re.findall(r"[-+]?\d*\.\d+|\d+", response)
     print(numbers)
     if len(numbers) == 3:
-            temp = numbers[1]
-            ec = numbers[2]
+            temp = numbers[0]
+            ec = numbers[1]
             print(temp)
             print(datetime('now','localtime'))
     time.sleep(300)
