@@ -196,7 +196,7 @@ Serial.print(K);
  
 if (TemperatureStart==TemperatureFinish){
   Serial.println("  Results are Trustworthy");
-  Serial.println("  Safe To Use Above Cell Constant in Main EC code");
+  //Serial.println("  Safe To Use Above Cell Constant in Main EC code");
  
 }
 else{
