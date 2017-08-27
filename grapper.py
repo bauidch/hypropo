@@ -35,7 +35,7 @@ while True:
     response = send_and_receive('1')
     numbers = re.findall(r"[-+]?\d*\.\d+|\d+", response)
     print(numbers)
-    if len(numbers) == 6:
+    if len(numbers) == 3:
             temp = numbers[1]
             ec = numbers[2]
             print(temp)
