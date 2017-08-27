@@ -1,7 +1,6 @@
 import serial
 import time
 import re
-import sqlite3
 
 for com in range(0,4):
   try:
