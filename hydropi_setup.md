@@ -1,12 +1,12 @@
 ### Wlan
 sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
 
-'''
+```
 network={
     ssid="testing"
     psk="testingPassword"
 }
-'''
+```
 
 ### SSH
 sudo /etc/init.d/ssh start
