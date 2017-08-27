@@ -1,7 +1,7 @@
 import serial
 import time
 import re
-import datetime
+import request
 
 for com in range(0,4):
   try:
@@ -39,6 +39,4 @@ while True:
     if len(numbers) == 3:
             temp = numbers[0]
             ec = numbers[1]
-            print(temp)
-            print(datetime('now','localtime'))
     time.sleep(300)
