@@ -34,3 +34,5 @@ sudo service influxdb start
 apt-get install python-pip
 pip install pyserial
 ```
+
+### Cron Job
