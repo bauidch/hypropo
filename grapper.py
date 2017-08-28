@@ -1,7 +1,7 @@
 import serial
 import time
 import re
-import request
+import requests
 
 for com in range(0,4):
   try:
@@ -39,4 +39,11 @@ while True:
     if len(numbers) == 3:
             temp = numbers[0]
             ec = numbers[1]
+            url = "http://localhost:8086/write?db=hydro"
+            data = ("hydroculture,host=hydroino01 temp=" + temp + ",ec=" + ec)
+            print(data)
+            try:
+                r = requests.post(url, data=data)
+            except:
+                print('Error to send data')
     time.sleep(300)
