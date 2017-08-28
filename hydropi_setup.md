@@ -10,6 +10,9 @@ network={
 
 ### SSH
 sudo /etc/init.d/ssh start
+sudo update-rc2.d ssh defaults
+sudo update-rc2.d ssh enable
+sudo systemctl enable ssh
 
 ### InfluxDB Grafana
 https://www.circuits.dk/install-grafana-influxdb-raspberry/
