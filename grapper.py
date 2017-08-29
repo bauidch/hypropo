@@ -40,7 +40,7 @@ while True:
             temp = numbers[0]
             ec = numbers[1]
             k = numbers[2]
-            b_value = ec + k
+            b_value = int(ec) + int(k)
             url = "http://localhost:8086/write?db=hydro"
             data = ("hydroculture,host=hydroino01 temp=" + temp + ",ec=" + ec + ",k=" + k + ",b=" + b_value)
             print(data)
