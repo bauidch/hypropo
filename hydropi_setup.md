@@ -36,3 +36,5 @@ pip install pyserial
 ```
 
 ### Cron Job
+/etc/cron.d/
+run-parts /etc/cron.daily

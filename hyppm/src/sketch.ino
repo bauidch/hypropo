@@ -1,13 +1,10 @@
-
 /*
-  ElCheapo Arduino EC-PPM measurments Calibration
+  ElCheapo Arduino EC-PPM measurments
 
-  This Script is used for calibration of the sensor and fine tuning of the Cell Constant K
-  Submerge the sensor and temperature probe in the calibration solution and leave for a while so the temperature probe can settle
-  Change the value of the calibration solution to suit the solutiton strength
-  Stir the probe to make sure the solution is well mixed and upload the code to the arduino
-  Open the terminal for an update of the estimated Cell Constant K [should be around 3] and use this new value in the main EC code.
+  This scrip uses a common USA two prong plug and a 47Kohm Resistor to measure the EC/PPM of a Aquaponics/Hydroponics Sytem.
+  You could modift this code to Measure other liquids if you change the resitor and values at the top of the code.
 
+  This Program will give you a temperature based feed controller. See Read me in download file for more info.
 
   28/8/2015  Michael Ratcliffe  Mike@MichaelRatcliffe.com
 
@@ -33,6 +30,9 @@
     -1 kohm resistor
     -DS18B20 Waterproof Temperature Sensor
 
+    Limitations:
+    -
+    -
 
     See www.MichaelRatcliffe.com/Projects for a Pinout and user guide or consult the Zip you got this code from
 
@@ -40,7 +40,7 @@
 
 
 //************************** Libraries Needed To Compile The Script [See Read me In Download] ***************//
-// Both below Library are custom ones [ SEE READ ME In Downloaded Zip If You Dont Know how To install Use them or add a pull up resistor to the temp probe
+// Both below Library are custom ones [ SEE READ ME In Downloaded Zip If You Dont Know how To install] Use them or add a pull up resistor to the temp probe
 
 
 #include <OneWire.h>
@@ -52,11 +52,6 @@
 
 
 //************************* User Defined Variables ********************************************************//
-
-
-float CalibrationEC=1.38; //EC value of Calibration solution is s/cm
-
-
 
 
 //##################################################################################
@@ -71,10 +66,28 @@ int ECGround=A1;
 int ECPower =A4;
 
 
+//*********** Converting to ppm [Learn to use EC it is much better**************//
+// Hana      [USA]        PPMconverion:  0.5
+// Eutech    [EU]          PPMconversion:  0.64
+//Tranchen  [Australia]  PPMconversion:  0.7
+// Why didnt anyone standardise this?
+
+
+float PPMconversion=0.7;
+
+
 //*************Compensating for temperature ************************************//
 //The value below will change depending on what chemical solution we are measuring
 //0.019 is generaly considered the standard for plant nutrients [google "Temperature compensation EC" for more info
 float TemperatureCoef = 0.019; //this changes depending on what chemical we are measuring
+
+
+
+
+//********************** Cell Constant For Ec Measurements *********************//
+//Mine was around 2.9 with plugs being a standard size they should all be around the same
+//But If you get bad readings you can use the calibration script and fluid to get a better estimate for K
+float K=2.88;
 
 
 
@@ -94,9 +107,9 @@ OneWire oneWire(ONE_WIRE_BUS);// Setup a oneWire instance to communicate with an
 DallasTemperature sensors(&oneWire);// Pass our oneWire reference to Dallas Temperature.
 
 
-float TemperatureFinish=0;
-float TemperatureStart=0;
+float Temperature=10;
 float EC=0;
+float EC25 =0;
 int ppm =0;
 
 
@@ -104,13 +117,9 @@ float raw= 0;
 float Vin= 5;
 float Vdrop= 0;
 float Rc= 0;
-float K=0.07;
-
-
-
-
-int i=0;
 float buffer=0;
+
+
 
 
 //*********************************Setup - runs Once and sets pins etc ******************************************************//
@@ -131,7 +140,17 @@ void setup()
   delay(100);
   //** Adding Digital Pin Resistance to [25 ohm] to the static Resistor *********//
   // Consule Read-Me for Why, or just accept it as true
-  R1=(R1+Ra);
+  R1=(R1+Ra);// Taking into acount Powering Pin Resitance
+
+  Serial.println("ElCheapo Arduino EC-PPM measurments");
+  Serial.println("By: Michael Ratcliffe  Mike@MichaelRatcliffe.com");
+  Serial.println("Free software: you can redistribute it and/or modify it under GNU ");
+  Serial.println("");
+  Serial.println("Make sure Probe and Temp Sensor are in Solution and solution is well mixed");
+  Serial.println("");
+  Serial.println("Measurments at 5's Second intervals [Dont read Ec morre than once every 5 seconds]:");
+
+
 };
 //******************************************* End of Setup **********************************************************************//
 
@@ -144,66 +163,80 @@ void loop()
 {
 
 
-  i=1;
-  buffer=0;
-sensors.requestTemperatures();// Send the command to get temperatures
-TemperatureStart=sensors.getTempCByIndex(0); //Stores Value in Variable
 
 
-//************Estimates Resistance of Liquid ****************//
-while(i<=10){
+GetEC();          //Calls Code to Go into GetEC() Loop [Below Main Loop] dont call this more that 1/5 hhz [once every five seconds] or you will polarise the water
+PrintReadings();  // Cals Print routine [below main loop]
 
 
-
-digitalWrite(ECPower,HIGH);
-raw= analogRead(ECPin);
-raw= analogRead(ECPin);// This is not a mistake, First reading will be low
-digitalWrite(ECPower,LOW);
-buffer=buffer+raw;
-i++;
 delay(5000);
-};
-raw=(buffer/10);
-
-
-
-
-sensors.requestTemperatures();// Send the command to get temperatures
-TemperatureFinish=sensors.getTempCByIndex(0); //Stores Value in Variable
-float temperaturBaui = sensors.getTempCByIndex(0);
-//baui kram
-Serial.print("Temperatur: ");
-Serial.print(temperaturBaui);
-
-//*************Compensating For Temperaure********************//
-EC =CalibrationEC*(1+(TemperatureCoef*(TemperatureFinish-25.0))) ;
-
-//***************** Calculates R relating to Calibration fluid **************************//
-Vdrop= (((Vin)*(raw))/1024.0);
-Rc=(Vdrop*R1)/(Vin-Vdrop);
-Rc=Rc-Ra;
-K= 1000/(Rc*EC);
-
-
-
-
-Serial.print("Calibration Fluid EC: ");
-Serial.print(CalibrationEC);
-Serial.print(" S  ");  //add units here
-Serial.print("Cell Constant K: ");
-Serial.print(K);
-
-
-if (TemperatureStart==TemperatureFinish){
-  Serial.println("  Results are Trustworthy");
-  //Serial.println("  Safe To Use Above Cell Constant in Main EC code");
-
-}
-else{
-  Serial.println("  Error -Wait For Temperature To settle");
-
-}
 
 
 }
 //************************************** End Of Main Loop **********************************************************************//
+
+
+
+
+//************ This Loop Is called From Main Loop************************//
+void GetEC(){
+
+
+//*********Reading Temperature Of Solution *******************//
+sensors.requestTemperatures();// Send the command to get temperatures
+Temperature=sensors.getTempCByIndex(0); //Stores Value in Variable
+
+
+
+
+//************Estimates Resistance of Liquid ****************//
+digitalWrite(ECPower,HIGH);
+raw= analogRead(ECPin);
+raw= analogRead(ECPin);// This is not a mistake, First reading will be low beause if charged a capacitor
+digitalWrite(ECPower,LOW);
+
+
+
+
+//***************** Converts to EC **************************//
+Vdrop= (Vin*raw)/1024.0;
+Rc=(Vdrop*R1)/(Vin-Vdrop);
+Rc=Rc-Ra; //acounting for Digital Pin Resitance
+EC = 1000/(Rc*K);
+
+
+//*************Compensating For Temperaure********************//
+EC25  =  EC/ (1+ TemperatureCoef*(Temperature-25.0));
+ppm=(EC25)*(PPMconversion*1000);
+
+
+;}
+//************************** End OF EC Function ***************************//
+
+
+
+
+//***This Loop Is called From Main Loop- Prints to serial usefull info ***//
+void PrintReadings(){
+Serial.print("Rc: ");
+Serial.print(Rc);
+Serial.print(" EC: ");
+Serial.print(EC25);
+Serial.print(" Simens  ");
+Serial.print(ppm);
+Serial.print(" ppm  ");
+Serial.print(Temperature);
+Serial.println(" *C ");
+
+
+/*
+//********** Usued for Debugging ************
+Serial.print("Vdrop: ");
+Serial.println(Vdrop);
+Serial.print("Rc: ");
+Serial.println(Rc);
+Serial.print(EC);
+Serial.println("Siemens");
+//********** end of Debugging Prints *********
+*/
+};
