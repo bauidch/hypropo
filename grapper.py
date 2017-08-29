@@ -40,9 +40,8 @@ while True:
             temp = numbers[0]
             ec = numbers[1]
             k = numbers[2]
-            b_value = float(1.38) + float(k)
             url = "http://localhost:8086/write?db=hydro"
-            data = ("hydroculture,host=hydroino01 temp=" + temp + ",ec=" + ec + ",k=" + k + ",b=" + b_value)
+            data = ("hydroculture,host=hydroino01 temp=" + temp + ",ec=" + ec + ",k=" + k)
             print(data)
             try:
                 r = requests.post(url, data=data)
